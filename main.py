@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Railway entry point for petrol station management system
-# DEBUG VERSION: Critical debugging with separate RUN commands
-# This will force execution of each debug step to identify the root cause
+# SOLUTION FOUND: src/lib directory was not being copied by COPY frontend/ ./
+# Fixed by using explicit COPY frontend/src ./src to ensure lib directory inclusion
 import os
 import sys
 
