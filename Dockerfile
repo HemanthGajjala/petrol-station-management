@@ -1,4 +1,4 @@
-# EMERGENCY DEBUG VERSION - NO CACHING
+# FINAL FIX - Explicit copy commands to ensure lib directory exists
 FROM node:20-slim AS frontend-build
 
 # Build frontend
@@ -10,47 +10,22 @@ COPY frontend/package.json frontend/package-lock.json ./
 # Install dependencies
 RUN npm ci --legacy-peer-deps
 
-# Copy the entire frontend directory structure at once
-COPY frontend/ ./
+# Copy frontend files EXPLICITLY to ensure lib directory is included
+COPY frontend/src ./src
+COPY frontend/public ./public
+COPY frontend/index.html ./
+COPY frontend/vite.config.js ./
+COPY frontend/tailwind.config.js ./
+COPY frontend/components.json ./
+COPY frontend/eslint.config.js ./
+COPY frontend/jsconfig.json ./
 
-# FORCE EXECUTION - Break cache with timestamp
-RUN echo "TIMESTAMP: $(date)" && echo "Starting comprehensive debug..."
-
-# Check current working directory
-RUN echo "=== CURRENT DIRECTORY ===" && pwd
-
-# List everything in current directory
-RUN echo "=== ROOT DIRECTORY CONTENTS ===" && ls -la
-
-# Check if src directory exists
-RUN echo "=== SRC DIRECTORY CHECK ===" && ls -la src/
-
-# Check lib directory specifically
-RUN echo "=== LIB DIRECTORY CHECK ===" && ls -la src/lib/
-
-# Verify critical files exist
-RUN echo "=== FILE EXISTENCE CHECK ===" && \
-    test -f src/lib/utils.js && echo "✓ utils.js EXISTS" || echo "✗ utils.js MISSING" && \
-    test -f src/lib/constants.js && echo "✓ constants.js EXISTS" || echo "✗ constants.js MISSING"
-
-# Show file contents
-RUN echo "=== UTILS.JS CONTENT ===" && cat src/lib/utils.js
-
-RUN echo "=== CONSTANTS.JS CONTENT (first 10 lines) ===" && head -10 src/lib/constants.js
-
-# Show vite config
-RUN echo "=== VITE CONFIG ===" && cat vite.config.js
-
-# Show jsconfig
-RUN echo "=== JSCONFIG ===" && cat jsconfig.json
-
-# Find all @/lib imports
-RUN echo "=== FINDING @/lib IMPORTS ===" && find . -name "*.jsx" | xargs grep -l "@/lib" | head -10
-
-# Show specific problematic file
-RUN echo "=== PROBLEMATIC BADGE.JSX ===" && head -10 src/components/ui/badge.jsx
-
-RUN echo "=== DEBUG COMPLETE - ATTEMPTING BUILD ==="
+# Verify lib directory is now present
+RUN echo "=== VERIFICATION AFTER EXPLICIT COPY ===" && \
+    ls -la src/ && \
+    echo "=== LIB DIRECTORY ===" && \
+    ls -la src/lib/ && \
+    echo "=== SUCCESS: lib directory exists! ==="
 
 # Build the project
 RUN npm run build
