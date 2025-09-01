@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { getCurrentBusinessDay, formatBusinessDayInfo, isNightShiftTime } from '../lib/constants';
+import { getCurrentBusinessDay, formatBusinessDayInfo, isNightShiftTime } from '@/lib/constants';
 
 const Dashboard = ({ dateRange }) => {
   const [dashboardData, setDashboardData] = useState({

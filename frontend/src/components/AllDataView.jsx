@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Database, FileText, Package, Edit, X, Save, Droplet, Download, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Progress } from "@/components/ui/progress";
-import { formatBusinessDayInfo, getBusinessDayFromDateTime } from '../lib/constants';
+import { formatBusinessDayInfo, getBusinessDayFromDateTime } from '@/lib/constants';
 
 const AllDataView = () => {
   const [dailyEntries, setDailyEntries] = useState([]);
