@@ -1,10 +1,10 @@
 # Multi-stage build for full-stack deployment
-FROM node:18-slim AS frontend-build
+FROM node:20-slim AS frontend-build
 
 # Build frontend
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-RUN npm ci --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
 COPY frontend/ ./
 RUN npm run build
