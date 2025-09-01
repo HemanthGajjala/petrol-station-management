@@ -4,7 +4,12 @@ FROM node:20-slim AS frontend-build
 # Build frontend
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-RUN npm install --legacy-peer-deps
+
+# Delete any existing node_modules and package-lock to start fresh
+RUN rm -rf node_modules package-lock.json
+
+# Install dependencies with production flag and legacy peer deps for Linux build
+RUN npm install --legacy-peer-deps --include=dev
 
 COPY frontend/ ./
 RUN npm run build
