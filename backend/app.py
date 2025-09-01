@@ -92,11 +92,14 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 # Use the backup database with actual data for production/deployment
 # Check if we're in production (Railway sets PORT env var)
 if os.getenv('PORT'):
-    # Production: use the database with data
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///petrol_station_backup.db'
+    # Production: use absolute path to the database with data
+    db_path = os.path.join(os.path.dirname(__file__), 'petrol_station_backup.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+    logger.info(f"Production mode: Using database at {db_path}")
 else:
     # Development: use instance folder
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///petrol_station.db'
+    logger.info("Development mode: Using instance database")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -369,6 +372,29 @@ class HPCLPayments(db.Model):
 with app.app_context():
     db.create_all()
     logger.info("Database tables created successfully")
+    
+    # If in production and database is empty, copy data from instance folder
+    if os.getenv('PORT'):
+        try:
+            # Check if database has data
+            result = db.session.execute(text('SELECT COUNT(*) FROM daily_consolidation')).fetchone()
+            count = result[0] if result else 0
+            logger.info(f"Current database has {count} daily consolidation entries")
+            
+            if count == 0:
+                # Try to copy from instance database if it exists
+                import shutil
+                instance_db = os.path.join(os.path.dirname(__file__), 'instance', 'petrol_station.db')
+                backup_db = os.path.join(os.path.dirname(__file__), 'petrol_station_backup.db')
+                
+                if os.path.exists(instance_db) and os.path.getsize(instance_db) > 0:
+                    logger.info(f"Copying database from {instance_db} to {backup_db}")
+                    shutil.copy2(instance_db, backup_db)
+                    logger.info("Database copied successfully")
+                else:
+                    logger.warning(f"Instance database not found at {instance_db}")
+        except Exception as e:
+            logger.error(f"Error checking/copying database: {str(e)}")
     
     # Test database connection
     try:
