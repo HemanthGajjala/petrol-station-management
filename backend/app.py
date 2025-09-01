@@ -382,17 +382,26 @@ with app.app_context():
             logger.info(f"Current database has {count} daily consolidation entries")
             
             if count == 0:
-                # Try to copy from instance database if it exists
+                # Try to copy from multiple possible locations
                 import shutil
-                instance_db = os.path.join(os.path.dirname(__file__), 'instance', 'petrol_station.db')
+                possible_sources = [
+                    os.path.join(os.path.dirname(__file__), 'instance', 'petrol_station.db'),
+                    os.path.join(os.path.dirname(__file__), 'instance_backup', 'petrol_station.db'),
+                ]
                 backup_db = os.path.join(os.path.dirname(__file__), 'petrol_station_backup.db')
                 
-                if os.path.exists(instance_db) and os.path.getsize(instance_db) > 0:
-                    logger.info(f"Copying database from {instance_db} to {backup_db}")
-                    shutil.copy2(instance_db, backup_db)
-                    logger.info("Database copied successfully")
+                for source_db in possible_sources:
+                    if os.path.exists(source_db) and os.path.getsize(source_db) > 0:
+                        logger.info(f"Copying database from {source_db} to {backup_db}")
+                        shutil.copy2(source_db, backup_db)
+                        logger.info("Database copied successfully")
+                        # Recreate database connection with new data
+                        db.session.commit()
+                        break
+                    else:
+                        logger.warning(f"Database not found or empty at {source_db}")
                 else:
-                    logger.warning(f"Instance database not found at {instance_db}")
+                    logger.error("No valid source database found")
         except Exception as e:
             logger.error(f"Error checking/copying database: {str(e)}")
     
