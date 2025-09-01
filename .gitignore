@@ -11,7 +11,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/  # REMOVED - this was excluding frontend/src/lib/ directory
 lib64/
 parts/
 sdist/
