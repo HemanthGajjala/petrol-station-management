@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Railway entry point for petrol station management system
-# SOLUTION FOUND: src/lib directory was not being copied by COPY frontend/ ./
-# Fixed by using explicit COPY frontend/src ./src to ensure lib directory inclusion
+# FORCE REBUILD: Railway cache issue - Dockerfile has correct explicit COPY but Railway using old version
+# Triggering complete rebuild with timestamp: Sep 1 2025 21:30
 import os
 import sys
 
