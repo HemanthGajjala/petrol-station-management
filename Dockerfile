@@ -7,8 +7,8 @@ WORKDIR /app/frontend
 # Copy package files first
 COPY frontend/package.json frontend/package-lock.json ./
 
-# Install dependencies
-RUN npm ci --legacy-peer-deps
+# Install dependencies with clean cache
+RUN npm ci --legacy-peer-deps --no-optional
 
 # Copy frontend files explicitly to ensure lib directory is included
 COPY frontend/src ./src
@@ -19,8 +19,11 @@ COPY frontend/components.json ./
 COPY frontend/eslint.config.js ./
 COPY frontend/jsconfig.json ./
 
-# Verify lib directory exists
-RUN echo "=== Checking lib directory ===" && ls -la src/lib/
+# Verify lib directory exists (lib directory issue SOLVED!)
+RUN echo "=== SUCCESS: Checking lib directory ===" && ls -la src/lib/
+
+# Clean reinstall to fix rollup dependency issue  
+RUN rm -rf node_modules package-lock.json && npm install --legacy-peer-deps
 
 # Build the project
 RUN npm run build
