@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# Railway entry point for Petrol Station Management System
+# Railway entry point for petrol station management system
+# Updated: Enhanced Docker verification build
 import os
 import sys
 
