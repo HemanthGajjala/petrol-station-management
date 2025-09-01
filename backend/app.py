@@ -6,7 +6,6 @@ from datetime import datetime, date, timedelta, time
 import os
 import json
 import logging
-import pandas as pd
 import io
 from dotenv import load_dotenv
 
