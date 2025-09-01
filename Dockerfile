@@ -21,4 +21,4 @@ COPY . .
 EXPOSE $PORT
 
 # Start the application
-CMD cd backend && python app.py
+CMD python main.py
