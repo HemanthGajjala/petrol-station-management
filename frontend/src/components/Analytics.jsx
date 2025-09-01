@@ -12,7 +12,31 @@ import {
   RefreshCw,
   Droplet
 } from 'lucide-react'
-import { TANK_CAPACITIES, calculateTankFillPercentage, getTankFillColorClass } from '@/lib/constants'
+
+// Business constants and utilities - embedded directly to avoid import issues
+const TANK_CAPACITIES = {
+  'HSD': 15000,
+  'MS': 15000,
+  'XMS': 8000,
+  'ATF': 8000
+};
+
+// Utility function to calculate tank fill percentage
+const calculateTankFillPercentage = (currentLevel, tankName) => {
+  const capacity = TANK_CAPACITIES[tankName];
+  if (!capacity || !currentLevel) return 0;
+  
+  const percentage = (currentLevel / capacity) * 100;
+  return Math.min(Math.max(percentage, 0), 100); // Clamp between 0-100%
+};
+
+// Helper function to get appropriate color class based on fill percentage
+const getTankFillColorClass = (percentage) => {
+  if (percentage <= 20) return 'text-red-600 bg-red-50';
+  if (percentage <= 40) return 'text-orange-600 bg-orange-50';
+  if (percentage <= 60) return 'text-yellow-600 bg-yellow-50';
+  return 'text-green-600 bg-green-50';
+};
 
 const Analytics = ({ selectedDate }) => {
   const [analyticsData, setAnalyticsData] = useState({

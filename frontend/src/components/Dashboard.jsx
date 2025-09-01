@@ -16,7 +16,89 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { getCurrentBusinessDay, formatBusinessDayInfo, isNightShiftTime } from '../lib/constants';
+
+// Business constants and utilities - embedded directly to avoid import issues
+const TANK_CAPACITIES = {
+  'HSD': 15000,
+  'MS': 15000,
+  'XMS': 8000,
+  'ATF': 8000
+};
+
+const getBusinessDayFromDateTime = (currentDateTime) => {
+  /**Get the business day (6 AM to 6 AM cycle) for any given datetime.*/
+  const cutoffHour = 8;
+  const cutoffMinute = 30;
+  
+  const current = new Date(currentDateTime);
+  const cutoffToday = new Date(current.getFullYear(), current.getMonth(), current.getDate(), cutoffHour, cutoffMinute);
+  
+  if (current >= cutoffToday) {
+    // After 8:30 AM today - business day is today
+    return new Date(current.getFullYear(), current.getMonth(), current.getDate());
+  } else {
+    // Before 8:30 AM today - business day is yesterday
+    const prevDay = new Date(current);
+    prevDay.setDate(current.getDate() - 1);
+    return new Date(prevDay.getFullYear(), prevDay.getMonth(), prevDay.getDate());
+  }
+};
+
+const getCurrentBusinessDay = () => {
+  /**Get the current business day based on current time.*/
+  return getBusinessDayFromDateTime(new Date());
+};
+
+const isNightShiftTime = () => {
+  /**Check if current time is during night shift (8:30 PM to 8:30 AM).*/
+  const now = new Date();
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+  
+  const nightStartHour = 20; // 8:30 PM
+  const nightStartMinute = 30;
+  const dayStartHour = 8;     // 8:30 AM
+  const dayStartMinute = 30;
+  
+  // Night shift spans midnight, so check if current time is after 8:30 PM or before 8:30 AM
+  return (hour > nightStartHour || (hour === nightStartHour && minute >= nightStartMinute)) ||
+         (hour < dayStartHour || (hour === dayStartHour && minute < dayStartMinute));
+};
+
+const formatBusinessDayInfo = (businessDate) => {
+  /**Format business day information for display.*/
+  const startDateTime = new Date(businessDate);
+  startDateTime.setHours(8, 30, 0, 0);
+  
+  const endDateTime = new Date(businessDate);
+  endDateTime.setDate(businessDate.getDate() + 1);
+  endDateTime.setHours(8, 30, 0, 0);
+  
+  return {
+    businessDate: businessDate.toLocaleDateString('en-IN'),
+    startTime: startDateTime.toLocaleString('en-IN'),
+    endTime: endDateTime.toLocaleString('en-IN'),
+    dayShiftPeriod: `${businessDate.toLocaleDateString('en-IN')} 8:30 AM - 8:30 PM`,
+    nightShiftPeriod: `${businessDate.toLocaleDateString('en-IN')} 8:30 PM - ${endDateTime.toLocaleDateString('en-IN')} 8:30 AM`
+  };
+};
+
+// Utility function to calculate tank fill percentage
+const calculateTankFillPercentage = (currentLevel, tankName) => {
+  const capacity = TANK_CAPACITIES[tankName];
+  if (!capacity || !currentLevel) return 0;
+  
+  const percentage = (currentLevel / capacity) * 100;
+  return Math.min(Math.max(percentage, 0), 100); // Clamp between 0-100%
+};
+
+// Helper function to get appropriate color class based on fill percentage
+const getTankFillColorClass = (percentage) => {
+  if (percentage <= 20) return 'text-red-600 bg-red-50';
+  if (percentage <= 40) return 'text-orange-600 bg-orange-50';
+  if (percentage <= 60) return 'text-yellow-600 bg-yellow-50';
+  return 'text-green-600 bg-green-50';
+};
 
 const Dashboard = ({ dateRange }) => {
   const [dashboardData, setDashboardData] = useState({

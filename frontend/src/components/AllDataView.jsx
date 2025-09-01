@@ -5,7 +5,44 @@ import { Button } from '@/components/ui/button';
 import { Database, FileText, Package, Edit, X, Save, Droplet, Download, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Progress } from "@/components/ui/progress";
-import { formatBusinessDayInfo, getBusinessDayFromDateTime } from '../lib/constants';
+
+// Business constants and utilities - embedded directly to avoid import issues
+const getBusinessDayFromDateTime = (currentDateTime) => {
+  /**Get the business day (6 AM to 6 AM cycle) for any given datetime.*/
+  const cutoffHour = 8;
+  const cutoffMinute = 30;
+  
+  const current = new Date(currentDateTime);
+  const cutoffToday = new Date(current.getFullYear(), current.getMonth(), current.getDate(), cutoffHour, cutoffMinute);
+  
+  if (current >= cutoffToday) {
+    // After 8:30 AM today - business day is today
+    return new Date(current.getFullYear(), current.getMonth(), current.getDate());
+  } else {
+    // Before 8:30 AM today - business day is yesterday
+    const prevDay = new Date(current);
+    prevDay.setDate(current.getDate() - 1);
+    return new Date(prevDay.getFullYear(), prevDay.getMonth(), prevDay.getDate());
+  }
+};
+
+const formatBusinessDayInfo = (businessDate) => {
+  /**Format business day information for display.*/
+  const startDateTime = new Date(businessDate);
+  startDateTime.setHours(8, 30, 0, 0);
+  
+  const endDateTime = new Date(businessDate);
+  endDateTime.setDate(businessDate.getDate() + 1);
+  endDateTime.setHours(8, 30, 0, 0);
+  
+  return {
+    businessDate: businessDate.toLocaleDateString('en-IN'),
+    startTime: startDateTime.toLocaleString('en-IN'),
+    endTime: endDateTime.toLocaleString('en-IN'),
+    dayShiftPeriod: `${businessDate.toLocaleDateString('en-IN')} 8:30 AM - 8:30 PM`,
+    nightShiftPeriod: `${businessDate.toLocaleDateString('en-IN')} 8:30 PM - ${endDateTime.toLocaleDateString('en-IN')} 8:30 AM`
+  };
+};
 
 const AllDataView = () => {
   const [dailyEntries, setDailyEntries] = useState([]);
