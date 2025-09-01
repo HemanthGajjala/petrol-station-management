@@ -21,4 +21,4 @@ COPY . .
 EXPOSE $PORT
 
 # Start the application
-CMD python main.py
+CMD ["python", "main.py"]
