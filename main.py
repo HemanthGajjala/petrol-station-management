@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Railway entry point for petrol station management system
-# Updated: Enhanced Docker verification build - v2
-# Moved verification before build to debug lib import issues
+# DEBUG VERSION: Critical debugging with separate RUN commands
+# This will force execution of each debug step to identify the root cause
 import os
 import sys
 
