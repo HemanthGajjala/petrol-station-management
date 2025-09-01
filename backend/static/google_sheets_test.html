@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheets Integration - Petrol Station</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            color: #2563eb;
+            margin-bottom: 30px;
+        }
+        .status-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .success {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+        .error {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+        .button {
+            background: #2563eb;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .button:hover {
+            background: #1d4ed8;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 6px;
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Google Sheets Integration</h1>
+            <p>Petrol Station Management System</p>
+            <p><strong>Owner:</strong> hemanth.gajjala88@gmail.com</p>
+        </div>
+
+        <div id="status-container">
+            <div class="loading" id="loading">
+                <p>🔄 Loading status...</p>
+            </div>
+            <div id="status-result"></div>
+        </div>
+
+        <div id="actions">
+            <button class="button" onclick="checkStatus()">🔍 Check Status</button>
+            <button class="button" onclick="setupIntegration()">⚙️ Setup Integration</button>
+            <button class="button" onclick="syncData()">📊 Sync Data Now</button>
+            <button class="button" onclick="testAI()">🤖 Test AI Chat</button>
+        </div>
+
+        <div id="result-container"></div>
+    </div>
+
+    <script>
+        async function checkStatus() {
+            showLoading();
+            try {
+                const response = await fetch('/api/google-sheets/status');
+                const data = await response.json();
+                showResult('Status Check', data);
+            } catch (error) {
+                showError('Failed to check status: ' + error.message);
+            }
+            hideLoading();
+        }
+
+        async function setupIntegration() {
+            showLoading();
+            try {
+                const response = await fetch('/api/google-sheets/setup', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                showResult('Setup Result', data);
+                
+                if (data.spreadsheet_url) {
+                    document.getElementById('result-container').innerHTML += `
+                        <div class="status-box success">
+                            <h3>🎉 Setup Successful!</h3>
+                            <p><strong>Spreadsheet URL:</strong> <a href="${data.spreadsheet_url}" target="_blank">${data.spreadsheet_url}</a></p>
+                            <p><strong>Shared with:</strong> hemanth.gajjala88@gmail.com</p>
+                            <button class="button" onclick="window.open('${data.spreadsheet_url}', '_blank')">📊 Open Google Sheets</button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                showError('Setup failed: ' + error.message);
+            }
+            hideLoading();
+        }
+
+        async function syncData() {
+            showLoading();
+            try {
+                const response = await fetch('/api/google-sheets/sync', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                showResult('Sync Result', data);
+            } catch (error) {
+                showError('Sync failed: ' + error.message);
+            }
+            hideLoading();
+        }
+
+        async function testAI() {
+            showLoading();
+            try {
+                const response = await fetch('/api/google-sheets/ai-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'What is the current status of my petrol station data? Show me a summary.'
+                    })
+                });
+                const data = await response.json();
+                showResult('AI Chat Test', data);
+            } catch (error) {
+                showError('AI test failed: ' + error.message);
+            }
+            hideLoading();
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showResult(title, data) {
+            const container = document.getElementById('result-container');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result';
+            resultDiv.innerHTML = `
+                <h3>${title}</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            container.appendChild(resultDiv);
+        }
+
+        function showError(message) {
+            const container = document.getElementById('result-container');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'status-box error';
+            errorDiv.innerHTML = `<h3>❌ Error</h3><p>${message}</p>`;
+            container.appendChild(errorDiv);
+        }
+
+        // Auto-check status on page load
+        window.onload = function() {
+            checkStatus();
+        };
+    </script>
+</body>
+</html>

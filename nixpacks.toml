@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["python39", "nodejs"]
+
+[phases.install]
+cmds = ["pip install -r backend/requirements.txt"]
+
+[phases.build]
+cmds = ["echo 'Build phase complete'"]
+
+[start]
+cmd = "cd backend && python app.py"
