@@ -18,6 +18,10 @@ export default defineConfig({
         manualChunks: undefined,
       },
     },
+    // Add this to help with Docker builds
+    target: 'es2015',
+    sourcemap: false,
+    minify: 'terser',
   },
   server: {
     proxy: {
