@@ -2954,14 +2954,28 @@ def get_dashboard_data():
 # Frontend serving routes
 @app.route('/')
 def serve_frontend():
-    return render_template('index.html')
+    if os.getenv('PORT'):
+        # Production: serve built React app
+        return send_from_directory('static', 'index.html')
+    else:
+        # Development: serve template
+        return render_template('index.html')
 
 @app.route('/<path:path>')
 def serve_frontend_routes(path):
     # For React Router - serve index.html for all frontend routes
     if path.startswith('api/'):
         return jsonify({'error': 'API endpoint not found'}), 404
-    return render_template('index.html')
+    
+    if os.getenv('PORT'):
+        # Production: check if file exists in static, otherwise serve index.html
+        try:
+            return send_from_directory('static', path)
+        except:
+            return send_from_directory('static', 'index.html')
+    else:
+        # Development: serve template
+        return render_template('index.html')
 
 @app.route('/assets/<path:filename>')
 def serve_assets(filename):

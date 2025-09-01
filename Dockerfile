@@ -1,16 +1,37 @@
+# Multi-stage build for full-stack deployment
+FROM node:18-slim AS frontend-build
+
+# Build frontend
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm ci
+
+COPY frontend/ ./
+RUN npm run build
+
+# Backend stage
 FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y gcc g++ && rm -rf /var/lib/apt/lists/*
+# Copy backend files
+COPY backend/ ./backend/
+COPY main.py ./
 
-# Copy and install requirements
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy built frontend to backend static folder
+COPY --from=frontend-build /app/frontend/dist ./backend/static/
 
-# Copy all files
-COPY . .
+# Install Python dependencies
+RUN pip install --no-cache-dir -r backend/requirements.txt
 
-# Run the application directly
+# Expose port
+EXPOSE $PORT
+
+# Start command
 CMD ["python", "main.py"]
