@@ -22,8 +22,8 @@ COPY frontend/jsconfig.json ./
 # Verify lib directory exists (lib directory issue SOLVED!)
 RUN echo "=== SUCCESS: Checking lib directory ===" && ls -la src/lib/
 
-# Clean reinstall to fix rollup dependency issue  
-RUN rm -rf node_modules package-lock.json && npm install --legacy-peer-deps
+# Clean reinstall with terser to fix build dependencies
+RUN rm -rf node_modules package-lock.json && npm install --legacy-peer-deps && npm install terser --legacy-peer-deps
 
 # Build the project
 RUN npm run build
