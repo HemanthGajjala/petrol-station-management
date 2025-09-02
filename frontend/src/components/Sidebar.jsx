@@ -31,7 +31,7 @@ const Sidebar = ({ isMobileOpen = false, onMobileClose }) => {
   return (
     <div className={`
       gradient-bg-5 w-64 shadow-lg
-      fixed lg:static inset-y-0 left-0 z-30
+      ${isMobileOpen ? 'fixed' : 'hidden'} lg:block lg:static inset-y-0 left-0 z-30
       transform ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} 
       lg:transform-none transition-transform duration-300 ease-in-out
     `}>
