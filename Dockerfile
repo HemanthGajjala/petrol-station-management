@@ -19,10 +19,10 @@ COPY frontend/components.json ./
 COPY frontend/eslint.config.js ./
 COPY frontend/jsconfig.json ./
 
-# Verify lib directory exists (lib directory issue SOLVED!)
-RUN echo "=== SUCCESS: Checking lib directory ===" && ls -la src/lib/
+# Verify lib directory exists (SOLVED!)
+RUN echo "=== SUCCESS: lib directory found ===" && ls -la src/lib/
 
-# Clean reinstall with terser to fix build dependencies
+# Clean reinstall with terser to fix all build dependencies
 RUN rm -rf node_modules package-lock.json && npm install --legacy-peer-deps && npm install terser --legacy-peer-deps
 
 # Build the project
