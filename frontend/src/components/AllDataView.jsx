@@ -44,6 +44,11 @@ const formatBusinessDayInfo = (businessDate) => {
   };
 };
 
+// API Configuration - use current domain for Railway, localhost for development
+const API_BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:5000' 
+  : window.location.origin;
+
 const AllDataView = () => {
   const [dailyEntries, setDailyEntries] = useState([]);
   const [procurementEntries, setProcurementEntries] = useState([]);
@@ -73,11 +78,11 @@ const AllDataView = () => {
   const fetchAllData = async () => {
     try {
       setLoading(true);
-      // Fetch all sets of data concurrently
+      // Fetch all sets of data concurrently using dynamic API base URL
       const [dailyRes, procurementRes, tankReadingsRes] = await Promise.all([
-        fetch('http://localhost:5000/api/daily-consolidation'),
-        fetch('http://localhost:5000/api/procurement'),
-        fetch('http://localhost:5000/api/tank-readings')
+        fetch(`${API_BASE_URL}/api/daily-consolidation`),
+        fetch(`${API_BASE_URL}/api/procurement`),
+        fetch(`${API_BASE_URL}/api/tank-readings`)
       ]);
 
       const dailyData = await dailyRes.json();
@@ -137,13 +142,13 @@ const AllDataView = () => {
       
       switch (deleteType) {
         case 'daily':
-          endpoint = `http://localhost:5000/api/daily-consolidation/${itemToDelete.id}`;
+          endpoint = `${API_BASE_URL}/api/daily-consolidation/${itemToDelete.id}`;
           break;
         case 'procurement':
-          endpoint = `http://localhost:5000/api/procurement/${itemToDelete.id}`;
+          endpoint = `${API_BASE_URL}/api/procurement/${itemToDelete.id}`;
           break;
         case 'tank':
-          endpoint = `http://localhost:5000/api/tank-readings/${itemToDelete.id}`;
+          endpoint = `${API_BASE_URL}/api/tank-readings/${itemToDelete.id}`;
           break;
         default:
           throw new Error('Invalid delete type');
@@ -245,15 +250,15 @@ const AllDataView = () => {
       );
       
       if (editingDailyEntry) {
-        endpoint = `http://localhost:5000/api/daily-consolidation/${editingDailyEntry.id}`;
+        endpoint = `${API_BASE_URL}/api/daily-consolidation/${editingDailyEntry.id}`;
         method = 'PUT';
         data = numericData;
       } else if (editingProcurementEntry) {
-        endpoint = `http://localhost:5000/api/procurement/${editingProcurementEntry.id}`;
+        endpoint = `${API_BASE_URL}/api/procurement/${editingProcurementEntry.id}`;
         method = 'PUT';
         data = numericData;
       } else if (editingTankReading) {
-        endpoint = `http://localhost:5000/api/tank-readings/${editingTankReading.id}`;
+        endpoint = `${API_BASE_URL}/api/tank-readings/${editingTankReading.id}`;
         method = 'PUT';
         data = numericData;
       }
@@ -374,7 +379,7 @@ const AllDataView = () => {
   };
 
   const exportFromServer = (dataType) => {
-    const url = `http://localhost:5000/api/export/${dataType}`;
+    const url = `${API_BASE_URL}/api/export/${dataType}`;
     const link = document.createElement('a');
     link.href = url;
     link.download = `${dataType}_${new Date().toISOString().split('T')[0]}.csv`;
@@ -384,7 +389,7 @@ const AllDataView = () => {
   };
 
   const exportAllFromServer = () => {
-    const url = 'http://localhost:5000/api/export/all';
+    const url = `${API_BASE_URL}/api/export/all`;
     const link = document.createElement('a');
     link.href = url;
     link.download = `petrol_station_data_${new Date().toISOString().split('T')[0]}.zip`;
